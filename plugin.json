@@ -4,7 +4,7 @@
   "meterVersionRequired" : "4.2.0-611",
   "unsupportedPlatforms" : [ ],
   "tags" : "activemq",
-  "description": "Plugin for the ActiveMQ Message Broker",
+  "description": "Meter plugin for the ActiveMQ Message Broker",
   "icon": "icon.png",
   "command": "boundary-meter init.lua",
   "metrics": [
