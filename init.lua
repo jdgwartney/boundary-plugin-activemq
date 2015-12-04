@@ -37,6 +37,7 @@ options.port = params.port
 options.auth = auth(params.username, params.password) 
 options.path = "/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=" .. params.broker_name
 options.wait_for_end = false
+options.debug_level = params.debug_level
 
 local function childDataSource(object)
   local opts = clone(options)

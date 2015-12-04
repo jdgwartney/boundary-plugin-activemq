@@ -1,9 +1,10 @@
 {
-    "pollInterval":2000,
-    "host":"localhost",
-    "broker_name":"localhost",
-    "port":8161,
-    "username":"admin",
-    "password":"admin"
+    "pollInterval": 5000,
+    "host": "localhost",
+    "broker_name": "localhost",
+    "port": 8161,
+    "username": "admin",
+    "password": "admin",
+    "debug_level": "debug"
 }
 
