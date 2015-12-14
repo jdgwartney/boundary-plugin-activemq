@@ -5,6 +5,6 @@
     "port": 8161,
     "username": "admin",
     "password": "admin",
-    "debug_level": "debug"
+    "debug_level": "notset"
 }
 
