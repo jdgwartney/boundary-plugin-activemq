@@ -15,7 +15,7 @@
 local framework = require('framework')
 local Plugin = framework.Plugin
 local notEmpty = framework.string.notEmpty
-local WebRequestDataSource = framework.WebRequestDataSource 
+local WebRequestDataSource = framework.WebRequestDataSource
 local hasAny = framework.table.hasAny
 local auth = framework.util.auth
 local clone = framework.table.clone
@@ -34,94 +34,116 @@ params.source = notEmpty(params.source, params.broker_name)
 local options = {}
 options.host = params.host
 options.port = params.port
-options.auth = auth(params.username, params.password) 
+options.auth = auth(params.username, params.password)
 options.path = "/api/jolokia/read/org.apache.activemq:type=Broker,brokerName=" .. params.broker_name
 options.wait_for_end = false
 options.debug_level = params.debug_level
 
 local function childDataSource(object)
-  local opts = clone(options)
-  opts.path = "/api/jolokia/read/" .. object 
-  opts.meta = object
-  return WebRequestDataSource:new(opts)
+    local opts = clone(options)
+    opts.path = "/api/jolokia/read/" .. object
+    opts.meta = object
+    return WebRequestDataSource:new(opts)
 end
 
 local pending_requests = {}
 local plugin
 local ds = WebRequestDataSource:new(options)
-ds:chain(function (context, callback, data)
-  local success, parsed = parseJson(data)
-  if not success then
-    context:emit('error', 'Can not parse metrics. Verify configuration parameters.')
-    return
-  end
-  parsed = get('value', parsed)
-  local metrics = {
-    ['ACTIVEMQ_BROKER_TOTALS_QUEUES'] = parsed.Queues and #parsed.Queues,
-    ['ACTIVEMQ_BROKER_TOTALS_TOPICS'] = parsed.Topics and #parsed.Topics,
-    ['ACTIVEMQ_BROKER_TOTALS_PRODUCERS'] = parsed.TotalProducerCount,
-    ['ACTIVEMQ_BROKER_TOTALS_CONSUMERS'] = parsed.TotalConsumerCount,
-    ['ACTIVEMQ_BROKER_TOTALS_MESSAGES'] = parsed.TotalMessageCount,
-    ['ACTIVEMQ_MEM_USED'] = parsed.MemoryPercentUsage,
-    ['ACTIVEMQ_STORE_USED'] = parsed.StorePercentUsage,
-  }
-  plugin:report(metrics)
+ds:chain(function(context, callback, data)
+    local success, parsed = parseJson(data)
+    if not success then
+        context:emit('error', 'Can not parse metrics. Verify configuration parameters.')
+        return
+    end
+    parsed = get('value', parsed)
+    local metrics = {
+        ['ACTIVEMQ_BROKER_TOTALS_QUEUES'] = parsed.Queues and #parsed.Queues,
+        ['ACTIVEMQ_BROKER_TOTALS_TOPICS'] = parsed.Topics and #parsed.Topics,
+        ['ACTIVEMQ_BROKER_TOTALS_PRODUCERS'] = parsed.TotalProducerCount,
+        ['ACTIVEMQ_BROKER_TOTALS_CONSUMERS'] = parsed.TotalConsumerCount,
+        ['ACTIVEMQ_BROKER_TOTALS_MESSAGES'] = parsed.TotalMessageCount,
+        ['ACTIVEMQ_MEM_USED'] = parsed.MemoryPercentUsage,
+        ['ACTIVEMQ_STORE_USED'] = parsed.StorePercentUsage,
+    }
+    plugin:report(metrics)
 
-  local data_sources = {}
-  for _, v in ipairs(parsed.Topics) do
-    local child_ds = childDataSource(v.objectName)
-    child_ds:propagate('error', context)
-    table.insert(data_sources, child_ds)
-    pending_requests[v.objectName] = true
-  end
-  for _, v in ipairs(parsed.Queues) do
-    local child_ds = childDataSource(v.objectName)
-    child_ds:propagate('error', context)
-    table.insert(data_sources, child_ds)
-    pending_requests[v.objectName] = true
-  end
-  return data_sources
+    local data_sources = {}
+    for _, v in ipairs(parsed.Topics) do
+        m = string.match(v.objectName, 'ActiveMQ.Advisory')
+        if m == nil then
+            local child_ds = childDataSource(v.objectName)
+            child_ds:propagate('error', context)
+            table.insert(data_sources, child_ds)
+            pending_requests[v.objectName] = true
+        end
+    end
+    for _, v in ipairs(parsed.Queues) do
+        m = string.match(v.objectName, 'ActiveMQ.Advisory')
+        if m == nil then
+            local child_ds = childDataSource(v.objectName)
+            child_ds:propagate('error', context)
+            table.insert(data_sources, child_ds)
+            pending_requests[v.objectName] = true
+        end
+    end
+    return data_sources
 end)
 
 local stats_total_tmpl = {
-  EnqueueCount = 0,
-  DequeueCount = 0,
-  InFlightCount = 0,
-  DispatchCount = 0,
-  ExpiredCount = 0,
-  QueueSize = 0
+    EnqueueCount = 0,
+    DequeueCount = 0,
+    InFlightCount = 0,
+    DispatchCount = 0,
+    ExpiredCount = 0,
+    QueueSize = 0
 }
 
 local stats_total = clone(stats_total_tmpl)
 
+local function component_names(line)
+    local words = {}
+    local i = 1
+    for token in string.gmatch(line, "[^,]+") do
+        _, words[i] = string.match(token, "(%g+)=(%g+)")
+        i = i + 1
+    end
+    return words[1], words[2], words[3], words[4]
+end
+
+
 plugin = Plugin:new(params, ds)
 function plugin:onParseValues(data, extra)
-  local success, parsed = parseJson(data)
-  if not success then
-    self:error('Can not parse metrics. Verify configuration parameters.')  
-    return
-  end
-  parsed = get('value', parsed)
-  local metrics = {}
+    local success, parsed = parseJson(data)
+    if not success then
+        self:error('Can not parse metrics. Verify configuration parameters.')
+        return
+    end
+    parsed = get('value', parsed)
 
-  -- Sum up all the stats
-  for k, v in pairs(stats_total) do
-    stats_total[k] = v + tonumber(parsed[k]) or 0
-  end
-  pending_requests[extra.info] = nil
-  if not hasAny(pending_requests) then
-    metrics = {
-      ['ACTIVEMQ_MESSAGE_STATS_ENQUEUE'] = stats_total.EnqueueCount,
-      ['ACTIVEMQ_MESSAGE_STATS_DEQUEUE'] = stats_total.DequeueCount,
-      ['ACTIVEMQ_MESSAGE_STATS_INFLIGHT'] = stats_total.InFlightCount,
-      ['ACTIVEMQ_MESSAGE_STATS_DISPATCH'] = stats_total.DispatchCount,
-      ['ACTIVEMQ_MESSAGE_STATS_EXPIRED'] = stats_total.ExpiredCount,
-      ['ACTIVEMQ_MESSAGE_STATS_QUEUE_SIZE'] = stats_total.QueueSize
-    }
-    stats_total = clone(stats_total_tmpl) 
-  end
+    -- Sum up all the stats
+    for k, v in pairs(stats_total) do
+        stats_total[k] = v + tonumber(parsed[k]) or 0
+    end
+    pending_requests[extra.info] = nil
+    local metrics = {}
+    metrics['ACTIVEMQ_MESSAGE_STATS_ENQUEUE'] = {}
+    metrics['ACTIVEMQ_MESSAGE_STATS_DEQUEUE'] = {}
+    metrics['ACTIVEMQ_MESSAGE_STATS_INFLIGHT'] = {}
+    metrics['ACTIVEMQ_MESSAGE_STATS_DISPATCH'] = {}
+    metrics['ACTIVEMQ_MESSAGE_STATS_EXPIRED'] = {}
+    metrics['ACTIVEMQ_MESSAGE_STATS_QUEUE_SIZE'] = {}
 
-  return metrics
+    local broker_name, destination_name, destination_type, _type = component_names(extra.info)
+    local source_name = broker_name .. '-' .. destination_type .. '-' .. destination_name
+
+    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_ENQUEUE'], { value = parsed.EnqueueCount, source = source_name })
+    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_DEQUEUE'], { value = parsed.DequeueCount, source = source_name })
+    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_INFLIGHT'], { value =parsed.InFlightCount, source = source_name })
+    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_DISPATCH'], { value =parsed.DispatchCount, source = source_name })
+    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_EXPIRED'], { value = parsed.ExpiredCount, source = source_name })
+    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_QUEUE_SIZE'], { value = parsed.QueueSize, source = source_name })
+
+    return metrics
 end
 
 plugin:run()
