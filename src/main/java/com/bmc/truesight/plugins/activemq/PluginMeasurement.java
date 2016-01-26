@@ -1,9 +1,24 @@
+//
+// Copyright 2015 BMC Software, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
 package com.bmc.truesight.plugins.activemq;
 
-/**
- * Created by dgwartne on 1/25/16.
- */
-public class PluginMeasurement {
+import java.util.ArrayList;
+import java.text.ParseException;
+
+public class PluginMeasurement implements PluginParsedItem {
 
     private String metric;
     private Number value;
@@ -43,6 +58,33 @@ public class PluginMeasurement {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public void parse(String s) throws ParseException {
+        ArrayList<String> fields = new ArrayList<String>();
+
+        for (String word : s.split(" ")) {
+            fields.add(word);
+        }
+
+        if (fields.size() == 4) {
+            this.setMetric(fields.get(0));
+            this.setValue(Double.parseDouble(fields.get(1)));
+            this.setSource(fields.get(2));
+            this.setTimestamp(Integer.parseInt(fields.get(3)));
+
+        } else if (fields.size() == 3) {
+            this.setMetric(fields.get(0));
+            this.setValue(Double.parseDouble(fields.get(1)));
+            this.setSource(fields.get(2));
+
+        } else if (fields.size() == 2) {
+            this.setMetric(fields.get(0));
+            this.setValue(Double.parseDouble(fields.get(1)));
+
+        } else {
+            throw new ParseException("Insufficient Fields", 0);
+        }
     }
 
     public String toString() {
