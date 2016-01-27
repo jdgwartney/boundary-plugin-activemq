@@ -63,7 +63,7 @@ ds:chain(function(context, callback, data)
         ['ACTIVEMQ_BROKER_TOTALS_CONSUMERS'] = parsed.TotalConsumerCount,
         ['ACTIVEMQ_BROKER_TOTALS_MESSAGES'] = parsed.TotalMessageCount,
         ['ACTIVEMQ_MEM_USED'] = parsed.MemoryPercentUsage,
-        ['ACTIVEMQ_STORE_USED'] = parsed.StorePercentUsage,
+        ['ACTIVEMQ_STORE_USED'] = parsed.StorePercentUsage/100.0,
     }
     plugin:report(metrics)
 
@@ -118,30 +118,50 @@ function plugin:onParseValues(data, extra)
         self:error('Can not parse metrics. Verify configuration parameters.')
         return
     end
+
+    ts = parsed.timestamp
     parsed = get('value', parsed)
 
-    -- Sum up all the stats
-    for k, v in pairs(stats_total) do
-        stats_total[k] = v + tonumber(parsed[k]) or 0
-    end
-    pending_requests[extra.info] = nil
     local metrics = {}
-    metrics['ACTIVEMQ_MESSAGE_STATS_ENQUEUE'] = {}
-    metrics['ACTIVEMQ_MESSAGE_STATS_DEQUEUE'] = {}
-    metrics['ACTIVEMQ_MESSAGE_STATS_INFLIGHT'] = {}
-    metrics['ACTIVEMQ_MESSAGE_STATS_DISPATCH'] = {}
-    metrics['ACTIVEMQ_MESSAGE_STATS_EXPIRED'] = {}
-    metrics['ACTIVEMQ_MESSAGE_STATS_QUEUE_SIZE'] = {}
 
     local broker_name, destination_name, destination_type, _type = component_names(extra.info)
     local source_name = broker_name .. '-' .. destination_type .. '-' .. destination_name
 
-    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_ENQUEUE'], { value = parsed.EnqueueCount, source = source_name })
-    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_DEQUEUE'], { value = parsed.DequeueCount, source = source_name })
-    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_INFLIGHT'], { value =parsed.InFlightCount, source = source_name })
-    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_DISPATCH'], { value =parsed.DispatchCount, source = source_name })
-    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_EXPIRED'], { value = parsed.ExpiredCount, source = source_name })
-    table.insert(metrics['ACTIVEMQ_MESSAGE_STATS_QUEUE_SIZE'], { value = parsed.QueueSize, source = source_name })
+    if _type == 'Queue' then
+	metrics['ACTIVEMQ_TOPIC_PRODUCERS'] = {}
+	metrics['ACTIVEMQ_TOPIC_CONSUMERS'] = {}
+        metrics['ACTIVEMQ_TOPIC_ENQUEUE'] = {}
+        metrics['ACTIVEMQ_TOPIC_DEQUEUE'] = {}
+        metrics['ACTIVEMQ_TOPIC_INFLIGHT'] = {}
+        metrics['ACTIVEMQ_TOPIC_DISPATCH'] = {}
+        metrics['ACTIVEMQ_TOPIC_EXPIRED'] = {}
+        metrics['ACTIVEMQ_TOPIC_SIZE'] = {}
+        table.insert(metrics['ACTIVEMQ_TOPIC_PRODUCERS'], { value = parsed.ProducerCount, source = source_name, timestamp = ts})
+        table.insert(metrics['ACTIVEMQ_TOPIC_CONSUMERS'], { value = parsed.ConsumerCount, source = source_name, timestamp = ts})
+        table.insert(metrics['ACTIVEMQ_TOPIC_ENQUEUE'], { value = parsed.EnqueueCount, source = source_name, timestamp = ts})
+        table.insert(metrics['ACTIVEMQ_TOPIC_DEQUEUE'], { value = parsed.DequeueCount, source = source_name, timestamp = ts})
+        table.insert(metrics['ACTIVEMQ_TOPIC_INFLIGHT'], { value =parsed.InFlightCount, source = source_name, timestamp = ts })
+        table.insert(metrics['ACTIVEMQ_TOPIC_DISPATCH'], { value =parsed.DispatchCount, source = source_name, timestamp = ts })
+        table.insert(metrics['ACTIVEMQ_TOPIC_EXPIRED'], { value = parsed.ExpiredCount, source = source_name, timestamp = ts })
+        table.insert(metrics['ACTIVEMQ_TOPIC_SIZE'], { value = parsed.QueueSize, source = source_name, timestamp = ts })
+    else
+	metrics['ACTIVEMQ_QUEUE_PRODUCERS'] = {}
+	metrics['ACTIVEMQ_QUEUE_CONSUMERS'] = {}
+        metrics['ACTIVEMQ_QUEUE_ENQUEUE'] = {}
+        metrics['ACTIVEMQ_QUEUE_DEQUEUE'] = {}
+        metrics['ACTIVEMQ_QUEUE_INFLIGHT'] = {}
+        metrics['ACTIVEMQ_QUEUE_DISPATCH'] = {}
+        metrics['ACTIVEMQ_QUEUE_EXPIRED'] = {}
+        metrics['ACTIVEMQ_QUEUE_SIZE'] = {}
+        table.insert(metrics['ACTIVEMQ_QUEUE_PRODUCERS'], { value = parsed.ProducerCount, source = source_name, timestamp = ts})
+        table.insert(metrics['ACTIVEMQ_QUEUE_CONSUMERS'], { value = parsed.ConsumerCount, source = source_name, timestamp = ts})
+        table.insert(metrics['ACTIVEMQ_QUEUE_ENQUEUE'], { value = parsed.EnqueueCount, source = source_name, timestamp = ts })
+        table.insert(metrics['ACTIVEMQ_QUEUE_DEQUEUE'], { value = parsed.DequeueCount, source = source_name, timestamp = ts })
+        table.insert(metrics['ACTIVEMQ_QUEUE_INFLIGHT'], { value =parsed.InFlightCount, source = source_name, timestamp = ts })
+        table.insert(metrics['ACTIVEMQ_QUEUE_DISPATCH'], { value =parsed.DispatchCount, source = source_name, timestamp = ts })
+        table.insert(metrics['ACTIVEMQ_QUEUE_EXPIRED'], { value = parsed.ExpiredCount, source = source_name, timestamp = ts })
+        table.insert(metrics['ACTIVEMQ_QUEUE_SIZE'], { value = parsed.QueueSize, source = source_name, timestamp = ts })
+    end
 
     return metrics
 end

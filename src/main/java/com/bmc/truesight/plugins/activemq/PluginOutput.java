@@ -20,20 +20,35 @@ import java.util.ArrayList;
 public class PluginOutput {
 
     private ArrayList<PluginMeasurement> measurements;
+    private ArrayList<PluginEvent> events;
 
-    PluginOutput(ArrayList<PluginMeasurement> measurements) {
+    public PluginOutput(ArrayList<PluginEvent> events,
+                        ArrayList<PluginMeasurement> measurements) {
+        this.events = events;
         this.measurements = measurements;
     }
 
+    ArrayList<PluginEvent> getEvents() {
+        ArrayList<PluginEvent> events = new ArrayList<PluginEvent>();
+        for (PluginEvent event: this.events) {
+            events.add(event);
+        }
+        return events;
+    }
+
     ArrayList<PluginMeasurement> getMeasurements() {
-        return this.measurements;
+        ArrayList<PluginMeasurement> measurements = new ArrayList<PluginMeasurement>();
+        for (PluginMeasurement measurement: this.measurements) {
+            measurements.add(measurement);
+        }
+        return measurements;
     }
 
     ArrayList<PluginMeasurement> getMeasurementsByMetric(String metric) {
         ArrayList<PluginMeasurement> list = new ArrayList<PluginMeasurement>();
 
         for (PluginMeasurement measurement : this.measurements) {
-            if (measurement.getMetric() == metric) {
+            if (measurement.getMetric().equals(metric)) {
                 list.add(measurement);
             }
         }
@@ -44,7 +59,7 @@ public class PluginOutput {
         long count = 0;
 
         for (PluginMeasurement measurement : this.measurements) {
-            if (measurement.getMetric() == metric) {
+            if (measurement.getMetric().equals(metric)) {
                 count++;
             }
         }
