@@ -133,6 +133,7 @@ public class PluginEventTest {
         assertThat(e.getTitle(),is(equalTo("Truesight Pulse ActiveMQ Plugin version 0.9.3-localhost Status")));
     }
 
+    @Ignore
     @Test
     public void testParseEmbeddedNewLines() throws ParseException {
         String s = "_bevent:Truesight Pulse\nActiveMQ Plugin\nversion 0.9.3-localhost Status";
@@ -140,4 +141,18 @@ public class PluginEventTest {
         e.parse(s);
         assertThat(e.getTitle(),is(equalTo("Truesight Pulse\nActiveMQ Plugin\nversion 0.9.3-localhost Status")));
     }
+
+    @Test
+    public void testEventRegEx() {
+        String s = "_bevent:Truesight Pulse ActiveMQ Plugin version 0.9.3-localhost Status|m:Up|h:localhost|s:localhost|t:info|tags:lua,plugin,activemq|at:text/html|ad:someBase64Htmlblob";
+        assertThat(s.matches(PluginEvent.EVENT_REG_EX), is(equalTo(true)));
+    }
+
+    @Ignore
+    @Test
+    public void testEventRegExWithEmbeddedNewLines() {
+        String s = "_bevent:Truesight Pulse\nActiveMQ Plugin\nversion 0.9.3-localhost Status|m:Up|h:localhost|s:localhost|t:info|tags:lua,plugin,activemq|at:text/html|ad:someBase64Htmlblob";
+        assertThat(s.matches(PluginEvent.EVENT_REG_EX), is(equalTo(true)));
+    }
+
 }
