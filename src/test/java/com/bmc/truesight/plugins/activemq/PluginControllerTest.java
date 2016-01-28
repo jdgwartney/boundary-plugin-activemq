@@ -16,35 +16,74 @@
 package com.bmc.truesight.plugins.activemq;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
 import org.junit.*;
+
+import java.util.ArrayList;
 
 public class PluginControllerTest {
 
-    @Test
-    public void testDefaultConstructor(){
-        PluginController p = new PluginController();
-        assertNotNull(p);
+    private PluginOutput output;
+
+    private final String COMMAND="mvn -q exec:java";
+
+    public void generateOutput() {
+        try {
+            PluginController p = new PluginController(COMMAND);
+            p.start();
+            Thread.sleep(30000);
+            p.stop();
+            this.output = p.getPluginOutput();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void testConstructor() {
-        PluginController p = new PluginController("boundary-meter --lua init.lua");
+        PluginController p = new PluginController(COMMAND);
         assertNotNull(p);
     }
 
-    @Test
-    public void testEventRegEx() {
-        String s = "_bevent:Boundary ActiveMQ Plugin version 0.9.3-localhost Status|m:Up|h:localhost|s:localhost|t:info|tags:lua,plugin,activemq";
-        String regEx = "^_bevent.*$";
-        assertTrue(s.matches(regEx));
-    }
-
-    @Test
-    public void testDestroy() {
+    @Test(timeout=30000)
+    public void testGetOutput() {
         try {
-            PluginController p = new PluginController("boundary-meter --lua init.lua");
+            PluginController p = new PluginController(COMMAND);
             p.start();
             Thread.sleep(5000);
+            p.stop();
+            PluginOutput output = p.getPluginOutput();
+            assertThat(output, is(notNullValue()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(timeout=60000)
+    public void testOutput() {
+        this.generateOutput();
+
+        ArrayList<PluginEvent> events = this.output.getEvents();
+        ArrayList<PluginLog> logs = this.output.getLogs();
+        ArrayList<PluginMeasurement> measurements = this.output.getMeasurements();
+
+        assertThat(events, is(notNullValue()));
+        assertThat(logs, is(notNullValue()));
+        assertThat(measurements, is(notNullValue()));
+
+        assertThat(events.size(), is(equalTo(500)));
+        assertThat(logs.size(), is(equalTo(1000)));
+        assertThat(measurements.size(), is(equalTo(500)));
+    }
+
+    @Test(timeout=30000)
+    public void testDestroy() {
+        try {
+            PluginController p = new PluginController(COMMAND);
+            p.start();
+            Thread.sleep(100);
             p.stop();
 
         } catch (Exception e) {

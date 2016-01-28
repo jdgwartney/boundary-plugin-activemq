@@ -23,77 +23,81 @@ import java.util.ArrayList;
 
 public class PluginController implements Runnable {
 
+    private final long DEFAULT_LINE_COUNT = 1000L;
+
     private String command;
     private Process plugin;
     private ArrayList<PluginEvent> events;
+    private ArrayList<PluginLog> logs;
     private ArrayList<PluginMeasurement> measurements;
+    private BufferedReader stdInput;
+    private BufferedReader stdError;
+    private Long lineCount;
 
     public PluginController(String command) {
         this.command = command;
+        this.lineCount = DEFAULT_LINE_COUNT;
     }
 
-    public PluginController() {
-        this.command = "boundary-meter --lua init.lua";
+    public PluginController(String command, Long lineCount) {
+        this.command = command;
+        this.lineCount = lineCount;
     }
 
     public void start() {
-        this.measurements = new ArrayList<PluginMeasurement>();
         this.events = new ArrayList<PluginEvent>();
+        this.logs = new ArrayList<PluginLog>();
+        this.measurements = new ArrayList<PluginMeasurement>();
         Thread pluginThread = new Thread(this);
         pluginThread.start();
     }
 
     public void run() {
-
-        String s;
-
         try {
-
             this.plugin = Runtime.getRuntime().exec(this.command);
-
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(this.plugin.getInputStream()));
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(this.plugin.getErrorStream()));
-
-            // read the output from the command
-
-            System.out.println("Here is the standard output of the command:\n");
-            while ((s = stdInput.readLine()) != null) {
-                try {
-
-                    if (s.matches("^_bevent.*\\$")) {
-                        PluginEvent e = new PluginEvent();
-                        e.parse(s);
-                        this.events.add(e);
-                    } else {
-                        PluginMeasurement m = new PluginMeasurement();
-                        m.parse(s);
-                        this.measurements.add(m);
-                    }
-
-                } catch (ParseException p) {
-                    p.printStackTrace();
-                }
-            }
-
-            System.out.println("Here is the standard error of the command (if any):\n");
-            while ((s = stdError.readLine()) != null) {
-                System.out.println(s);
-            }
-
+            this.stdInput = new BufferedReader(new InputStreamReader(this.plugin.getInputStream()));
+            this.stdError = new BufferedReader(new InputStreamReader(this.plugin.getErrorStream()));
         } catch (IOException e) {
-            System.out.println("exception happened - here's what I know: ");
             e.printStackTrace();
         }
     }
 
     public void stop() {
-        if (this.plugin != null) {
-            this.plugin.destroy();
-        }
+        try {
+            String s;
+            Long lineCount = 1L;
+            while ((s = this.stdInput.readLine()) != null && lineCount <= this.lineCount) {
+                if (s.matches(PluginEvent.EVENT_REG_EX)) {
+                    PluginEvent e = new PluginEvent();
+                    e.parse(s);
+                    this.events.add(e);
+                } else {
+                    PluginMeasurement m = new PluginMeasurement();
+                    m.parse(s);
+                    this.measurements.add(m);
+                }
+                lineCount++;
+            }
 
+            lineCount = 1L;
+            while ((s = stdError.readLine()) != null && lineCount <= this.lineCount) {
+                System.out.flush();
+                PluginLog log = new PluginLog();
+                log.parse(s);
+                this.logs.add(log);
+                lineCount++;
+            }
+            if (this.plugin != null) {
+                this.plugin.destroy();
+            }
+        } catch (IOException i) {
+            i.printStackTrace();
+        } catch (ParseException p) {
+            p.printStackTrace();
+        }
     }
 
     public PluginOutput getPluginOutput() {
-        return new PluginOutput(this.events, this.measurements);
+        return new PluginOutput(this.events, this.logs, this.measurements);
     }
 }

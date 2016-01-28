@@ -4,18 +4,66 @@ import java.util.Date;
 
 public class PluginSimulator {
 
-    public PluginSimulator() {
+    private long eventCount = Long.MAX_VALUE;
+    private long logCount = Long.MAX_VALUE;
+    private long measurementCount = Long.MAX_VALUE;
 
+    public PluginSimulator() {
+        this.getProperties();
+    }
+
+    public PluginSimulator(long eventCount, long logCount, long measurementCount) {
+        this.eventCount = eventCount;
+        this.logCount = logCount;
+        this.measurementCount = measurementCount;
+
+        // System properties override
+        this.getProperties();
+    }
+
+    public void getProperties() {
+        this.eventCount = Long.parseLong(System.getProperty("plugin.simulator.event_count",
+                Long.toString(this.eventCount)));
+        this.logCount = Long.parseLong(System.getProperty("plugin.simulator.log_count",
+                Long.toString(this.logCount)));
+        this.measurementCount = Long.parseLong(System.getProperty("plugin.simulator.measurement_count",
+                Long.toString(this.measurementCount)));
+    }
+
+    public void writeEvent() {
+        if (this.eventCount > 0) {
+            String s = "_bevent:TITLE|m:MESSAGE|h:SOURCE|s:SENDER|t:info|tags:red,blue,green";
+            System.out.println(s);
+            System.out.flush();
+            eventCount--;
+        }
+    }
+
+    public void writeMeasurement() {
+        if (this.measurementCount > 0) {
+            Date d = new Date();
+            System.out.println("FOO 1.0 BAR " + d.getTime());
+            System.out.flush();
+            measurementCount--;
+        }
+    }
+
+    public void writeLog() {
+        if (this.measurementCount > 0) {
+            System.err.println("An Error Occurred");
+            System.err.flush();
+            logCount--;
+        }
     }
 
     public void writeOutput() {
-        Date d = new Date();
-        String s = "_bevent:TITLE|m:MESSAGE|h:SOURCE|s:SENDER|t:info|tags:red,blue,green";
-        System.out.println(s);
-        System.out.println("FOO 1.0 BAR " + d.getTime());
-        System.out.flush();
-        System.err.print("An Error Occurred");
-        System.err.flush();
+        if (eventCount > 0 || logCount > 0 || measurementCount > 0) {
+            this.writeEvent();
+            this.writeLog();
+            this.writeMeasurement();
+        } else {
+            System.exit(0);
+        }
     }
 
     public void run() {
