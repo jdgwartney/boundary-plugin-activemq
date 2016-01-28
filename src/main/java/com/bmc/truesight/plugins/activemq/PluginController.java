@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class PluginController implements Runnable {
 
-    private final long DEFAULT_LINE_COUNT = 1000L;
+    private final long DEFAULT_COUNT = 10L;
 
     private String command;
     private Process plugin;
@@ -32,16 +32,21 @@ public class PluginController implements Runnable {
     private ArrayList<PluginMeasurement> measurements;
     private BufferedReader stdInput;
     private BufferedReader stdError;
-    private Long lineCount;
+    private long stdOutCount;
+    private long stdErrCount;
 
     public PluginController(String command) {
         this.command = command;
-        this.lineCount = DEFAULT_LINE_COUNT;
+        this.stdOutCount = DEFAULT_COUNT;
+        this.stdErrCount = DEFAULT_COUNT;
     }
 
-    public PluginController(String command, Long lineCount) {
+    public PluginController(String command,
+                            long stdOutCount,
+                            long stdErrCount) {
         this.command = command;
-        this.lineCount = lineCount;
+        this.stdOutCount = stdOutCount;
+        this.stdErrCount = stdErrCount;
     }
 
     public void start() {
@@ -66,7 +71,7 @@ public class PluginController implements Runnable {
         try {
             String s;
             Long lineCount = 1L;
-            while ((s = this.stdInput.readLine()) != null && lineCount <= this.lineCount) {
+            while ((s = this.stdInput.readLine()) != null && lineCount <= this.stdOutCount) {
                 if (s.matches(PluginEvent.EVENT_REG_EX)) {
                     PluginEvent e = new PluginEvent();
                     e.parse(s);
@@ -80,7 +85,7 @@ public class PluginController implements Runnable {
             }
 
             lineCount = 1L;
-            while ((s = stdError.readLine()) != null && lineCount <= this.lineCount) {
+            while ((s = stdError.readLine()) != null && lineCount <= this.stdErrCount) {
                 System.out.flush();
                 PluginLog log = new PluginLog();
                 log.parse(s);

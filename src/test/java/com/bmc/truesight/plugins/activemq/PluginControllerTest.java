@@ -26,12 +26,16 @@ public class PluginControllerTest {
     private PluginOutput output;
 
     private final String COMMAND="mvn -q exec:java";
+    private final String COMMAND_TEMPLATE=
+            "mvn -q exec:java -Dplugin.event_count=%d -Dplugin.log_count=%d, -Dplugin.measurement_count%d";
 
-    public void generateOutput() {
+    public void generateOutput(long millis, long eventCount, long logCount, long measurementCount) {
         try {
-            PluginController p = new PluginController(COMMAND);
+            String command = String.format(COMMAND_TEMPLATE, eventCount, logCount, measurementCount);
+
+            PluginController p = new PluginController(command, eventCount + measurementCount, logCount);
             p.start();
-            Thread.sleep(30000);
+            Thread.sleep(millis);
             p.stop();
             this.output = p.getPluginOutput();
 
@@ -63,7 +67,10 @@ public class PluginControllerTest {
 
     @Test(timeout=60000)
     public void testOutput() {
-        this.generateOutput();
+        long expectedEventCount = 500;
+        long expectedLogCount = 500;
+        long expectedMeasurementCount = 500;
+        this.generateOutput(30000, expectedEventCount, expectedLogCount, expectedMeasurementCount);
 
         ArrayList<PluginEvent> events = this.output.getEvents();
         ArrayList<PluginLog> logs = this.output.getLogs();
@@ -74,7 +81,7 @@ public class PluginControllerTest {
         assertThat(measurements, is(notNullValue()));
 
         assertThat(events.size(), is(equalTo(500)));
-        assertThat(logs.size(), is(equalTo(1000)));
+        assertThat(logs.size(), is(equalTo(500)));
         assertThat(measurements.size(), is(equalTo(500)));
     }
 

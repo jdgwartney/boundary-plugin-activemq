@@ -49,7 +49,7 @@ public class PluginSimulator {
     }
 
     public void writeLog() {
-        if (this.measurementCount > 0) {
+        if (this.logCount > 0) {
             System.err.println("An Error Occurred");
             System.err.flush();
             logCount--;
