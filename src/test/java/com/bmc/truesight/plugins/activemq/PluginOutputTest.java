@@ -15,6 +15,7 @@ public class PluginOutputTest {
     public void createOutput() throws ParseException {
         ArrayList<PluginEvent> events = new ArrayList<PluginEvent>();
         ArrayList<PluginMeasurement> measurements = new ArrayList<PluginMeasurement>();
+        ArrayList<PluginLog> logs = new ArrayList<PluginLog>();
         PluginEvent event = new PluginEvent();
         String rawEvent = "_bevent:TITLE|m:MESSAGE|h:SOURCE|s:SENDER|t:info|tags:red,green,blue|at:text/html|ad:APPLICATION_DATA";
         event.parse(rawEvent);
@@ -25,25 +26,34 @@ public class PluginOutputTest {
         measurement.parse(rawMessage);
         measurements.add(measurement);
 
-        this.output = new PluginOutput(events, measurements);
+        PluginLog log = new PluginLog();
+        String rawLog = "An error occurred";
+        log.parse(rawLog);
+        logs.add(log);
+
+        this.output = new PluginOutput(events, logs, measurements);
     }
 
     @Test
     public void testConstructor() {
         ArrayList<PluginEvent> events = new ArrayList<PluginEvent>();
+        ArrayList<PluginLog> logs = new ArrayList<PluginLog>();
         ArrayList<PluginMeasurement> measurements = new ArrayList<PluginMeasurement>();
-        PluginOutput output = new PluginOutput(events, measurements);
+        PluginOutput output = new PluginOutput(events, logs, measurements);
         assertThat(output, is(notNullValue()));
     }
 
     @Test
     public void testGet() {
         ArrayList<PluginEvent> events = this.output.getEvents();
+        ArrayList<PluginLog> logs = this.output.getLogs();
         ArrayList<PluginMeasurement> measurements = this.output.getMeasurements();
 
         assertThat(events, is(notNullValue()));
+        assertThat(logs, is(notNullValue()));
         assertThat(measurements, is(notNullValue()));
         assertThat(events.size(), is(equalTo(1)));
+        assertThat(logs.size(), is(equalTo(1)));
         assertThat(measurements.size(), is(equalTo(1)));
     }
 

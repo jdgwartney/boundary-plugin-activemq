@@ -19,12 +19,15 @@ import java.util.ArrayList;
 
 public class PluginOutput {
 
-    private ArrayList<PluginMeasurement> measurements;
     private ArrayList<PluginEvent> events;
+    private ArrayList<PluginLog> logs;
+    private ArrayList<PluginMeasurement> measurements;
 
     public PluginOutput(ArrayList<PluginEvent> events,
+                        ArrayList<PluginLog> logs,
                         ArrayList<PluginMeasurement> measurements) {
         this.events = events;
+        this.logs = logs;
         this.measurements = measurements;
     }
 
@@ -34,6 +37,14 @@ public class PluginOutput {
             events.add(event);
         }
         return events;
+    }
+
+    ArrayList<PluginLog> getLogs() {
+        ArrayList<PluginLog> logs = new ArrayList<PluginLog>();
+        for (PluginLog s: this.logs) {
+            logs.add(s);
+        }
+        return logs;
     }
 
     ArrayList<PluginMeasurement> getMeasurements() {
