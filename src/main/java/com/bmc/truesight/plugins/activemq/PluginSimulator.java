@@ -14,6 +14,8 @@ public class PluginSimulator {
         System.out.println(s);
         System.out.println("FOO 1.0 BAR " + d.getTime());
         System.out.flush();
+        System.err.print("An Error Occurred");
+        System.err.flush();
     }
 
     public void run() {
