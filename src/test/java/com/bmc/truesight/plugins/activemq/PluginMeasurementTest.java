@@ -117,4 +117,12 @@ public class PluginMeasurementTest {
         m.parse(s);
 
     }
+
+    @Test
+    public void testToString() throws ParseException {
+        String s = "ACTIVEMQ_BROKER_TOTALS_QUEUES 10.0 localhost";
+        PluginMeasurement m = new PluginMeasurement();
+        m.parse(s);
+        assertThat(m.toString(), is(equalTo(s)));
+    }
 }

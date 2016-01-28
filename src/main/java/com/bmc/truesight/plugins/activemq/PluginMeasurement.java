@@ -71,7 +71,7 @@ public class PluginMeasurement implements PluginParsedItem {
             this.setMetric(fields.get(0));
             this.setValue(Double.parseDouble(fields.get(1)));
             this.setSource(fields.get(2));
-            this.setTimestamp(Integer.parseInt(fields.get(3)));
+            this.setTimestamp(Long.parseLong(fields.get(3)));
 
         } else if (fields.size() == 3) {
             this.setMetric(fields.get(0));
@@ -83,25 +83,26 @@ public class PluginMeasurement implements PluginParsedItem {
             this.setValue(Double.parseDouble(fields.get(1)));
 
         } else {
-            throw new ParseException("Insufficient Fields", 0);
+            throw new ParseException("Insufficient Fields: " + s, 0);
         }
     }
 
     public String toString() {
         StringBuilder s = new StringBuilder();
 
-        s.append("PluginMeasurement");
-        s.append("(\"");
         s.append(this.getMetric());
-        s.append("\", ");
+        s.append(" ");
         s.append(this.getValue());
-        s.append(", ");
-        s.append("\"");
-        s.append(this.getSource());
-        s.append("\"");
-        s.append(", ");
-        s.append(this.getTimestamp());
-        s.append(")");
+        String source = this.getSource();
+        if (source != null) {
+            s.append(" ");
+            s.append(this.getSource());
+        }
+        Long timestamp = this.getTimestamp();
+        if (timestamp != 0) {
+            s.append(" ");
+            s.append(this.getTimestamp());
+        }
         return s.toString();
     }
 }
