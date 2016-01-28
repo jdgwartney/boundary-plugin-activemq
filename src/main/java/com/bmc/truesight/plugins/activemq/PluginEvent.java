@@ -32,6 +32,8 @@ public class PluginEvent implements PluginParsedItem {
 
     private ArrayList<String> eventTypes;
 
+    public static final String EVENT_REG_EX = "^_bevent:.*$";
+
     public PluginEvent() {
         this.eventTypes = new ArrayList<String>();
         this.eventTypes.add("info");
@@ -48,7 +50,7 @@ public class PluginEvent implements PluginParsedItem {
             fields.add(word);
         }
 
-        if (fields.get(0).matches("^_bevent.*\\$")) {
+        if (!fields.get(0).matches(PluginEvent.EVENT_REG_EX)) {
             throw new ParseException("Not a plugin event string", 0);
         }
 
