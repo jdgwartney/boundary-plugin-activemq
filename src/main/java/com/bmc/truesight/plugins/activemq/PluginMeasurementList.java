@@ -4,7 +4,7 @@ import java.util.ListIterator;
 
 public class PluginMeasurementList extends PluginItemList<PluginMeasurement> {
 
-    PluginMeasurementList getMeasurementsByMetric(String metric) {
+    PluginMeasurementList getByMetric(String metric) {
         PluginMeasurementList list = new PluginMeasurementList();
 
         ListIterator<PluginMeasurement> iterator = this.listIterator(0);

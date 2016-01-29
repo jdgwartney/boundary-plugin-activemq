@@ -7,8 +7,31 @@ import static org.hamcrest.Matchers.*;
 import org.junit.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class PluginMeasurementListTest {
+
+    private PluginMeasurementList measurements;
+    private final String METRIC = "TEST_METRIC_GET";
+    private final String SOURCE = "FOOBAR";
+    private final long TIMESTAMP = new Date().getTime();
+    private final Number VALUE_1 = 100.0;
+    private final Number VALUE_2 = 200.0;
+    private final Number VALUE_3 = 300.0;
+
+
+    public void createList() {
+        this.measurements = new PluginMeasurementList();
+        PluginMeasurement m = new PluginMeasurement(METRIC, VALUE_1, SOURCE, TIMESTAMP);
+        measurements.add(m);
+
+        m = new PluginMeasurement(METRIC, VALUE_2, SOURCE, TIMESTAMP);
+        measurements.add(m);
+
+        m = new PluginMeasurement(METRIC, VALUE_3, SOURCE, TIMESTAMP);
+        measurements.add(m);
+
+    }
 
     @Test
     public void testConstructor() {
@@ -29,13 +52,17 @@ public class PluginMeasurementListTest {
 
     @Test
     public void testGetByMetric() {
-        PluginMeasurementList measurements = new PluginMeasurementList();
-//
-//        PluginMeasurement m = measurements.get(0);
-//        assertThat(m.getMetric(), is(equalTo("TEST_METRIC")));
-//        Number expectedNumber = 104501.000000;
-//        assertThat(m.getValue(), is(equalTo(expectedNumber)));
-//        assertThat(m.getSource(), is(equalTo("localhost")));
-//        assertThat(m.getTimestamp(), is(equalTo(1453776205L)));
+        this.createList();
+
+        PluginMeasurementList subMeasurements = this.measurements.getByMetric(METRIC);
+
+        assertThat(subMeasurements.size(), is(equalTo(3)));
+
+        PluginMeasurement fetched = measurements.get(0);
+        assertThat(fetched.getMetric(), is(equalTo(METRIC)));
+        assertThat(fetched.getValue(), is(equalTo(VALUE_1)));
+        assertThat(fetched.getSource(), is(equalTo(SOURCE)));
+        assertThat(fetched.getTimestamp(), is(equalTo(TIMESTAMP)));
+
     }
 }
