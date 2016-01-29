@@ -34,6 +34,41 @@ public class PluginMeasurementTest {
     }
 
     @Test
+    public void test2ArgConstructor() {
+        String expectedMetric = "TEST_2_ARG_CONSTRUCTOR";
+        Number expectedValue = 200.0;
+        PluginMeasurement m = new PluginMeasurement(expectedMetric, expectedValue);
+        assertThat(m.getMetric(), is(equalTo(expectedMetric)));
+        assertThat(m.getValue(), is(equalTo(expectedValue)));
+    }
+
+    @Test
+    public void test3ArgConstructor() {
+        String expectedMetric = "TEST_3_ARG_CONSTRUCTOR";
+        Number expectedValue = 300.0;
+        String expectedSource = "TEST_3_ARG_SOURCE";
+        PluginMeasurement m = new PluginMeasurement(expectedMetric, expectedValue, expectedSource);
+        assertThat(m.getMetric(), is(equalTo(expectedMetric)));
+        assertThat(m.getValue(), is(equalTo(expectedValue)));
+        assertThat(m.getSource(), is(equalTo(expectedSource)));
+    }
+
+    @Test
+    public void test4ArgConstructor() {
+        String expectedMetric = "TEST_4_ARG_CONSTRUCTOR";
+        Number expectedValue = 400.0;
+        String expectedSource = "TEST_4_ARG_SOURCE";
+        Date d = new Date();
+        long expectedTimestamp = d.getTime();
+        PluginMeasurement m = new PluginMeasurement(expectedMetric, expectedValue, expectedSource, expectedTimestamp);
+        assertThat(m.getMetric(), is(equalTo(expectedMetric)));
+        assertThat(m.getValue(), is(equalTo(expectedValue)));
+        assertThat(m.getSource(), is(equalTo(expectedSource)));
+        assertThat(m.getTimestamp(), is(equalTo(expectedTimestamp)));
+    }
+
+
+    @Test
     public void testMetric() {
         PluginMeasurement m = new PluginMeasurement();
         String expectedMetric = "CPU";

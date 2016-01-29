@@ -28,6 +28,24 @@ public class PluginMeasurement implements PluginParsedItem {
     public PluginMeasurement() {
     }
 
+    public PluginMeasurement(String metric, Number value) {
+        this.metric = metric;
+        this.value = value;
+    }
+
+    public PluginMeasurement(String metric, Number value, String source) {
+        this.metric = metric;
+        this.value = value;
+        this.source = source;
+    }
+
+    public PluginMeasurement(String metric, Number value, String source, long timestamp) {
+        this.metric = metric;
+        this.value = value;
+        this.source = source;
+        this.timestamp = timestamp;
+    }
+
     public String getMetric() {
         return metric;
     }
