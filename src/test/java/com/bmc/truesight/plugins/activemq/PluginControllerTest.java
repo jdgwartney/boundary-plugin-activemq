@@ -67,10 +67,11 @@ public class PluginControllerTest {
 
     @Test(timeout=60000)
     public void testOutput() {
-        long expectedEventCount = 500;
-        long expectedLogCount = 500;
-        long expectedMeasurementCount = 500;
-        this.generateOutput(30000, expectedEventCount, expectedLogCount, expectedMeasurementCount);
+        final int EXPECTED_EVENT_COUNT = 500;
+        final int EXPECTED_LOG_COUNT = 500;
+        final int EXPECTED_MEASUREMENT_COUNT = 500;
+
+        this.generateOutput(30000, EXPECTED_EVENT_COUNT, EXPECTED_LOG_COUNT, EXPECTED_MEASUREMENT_COUNT);
 
         ArrayList<PluginEvent> events = this.output.getEvents();
         ArrayList<PluginLog> logs = this.output.getLogs();
@@ -80,9 +81,9 @@ public class PluginControllerTest {
         assertThat(logs, is(notNullValue()));
         assertThat(measurements, is(notNullValue()));
 
-        assertThat(events.size(), is(equalTo(500)));
-        assertThat(logs.size(), is(equalTo(500)));
-        assertThat(measurements.size(), is(equalTo(500)));
+        assertThat(events.size(), is(equalTo(EXPECTED_EVENT_COUNT)));
+        assertThat(logs.size(), is(equalTo(EXPECTED_LOG_COUNT)));
+        assertThat(measurements.size(), is(equalTo(EXPECTED_MEASUREMENT_COUNT)));
     }
 
     @Test(timeout=30000)
