@@ -1,11 +1,12 @@
-package com.bmc.truesight.plugins.activemq;
+package com.bmc.truesight.plugins;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
+
+import com.bmc.truesight.plugins.*;
 import org.junit.*;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 
 public class PluginOutputTest {
 

@@ -13,10 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.bmc.truesight.plugins.activemq;
+package com.bmc.truesight.plugins;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
+
+import com.bmc.truesight.plugins.PluginEvent;
 import org.junit.*;
 
 import java.text.ParseException;

@@ -13,9 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.bmc.truesight.plugins.activemq;
-
-import java.util.ArrayList;
+package com.bmc.truesight.plugins;
 
 public class PluginOutput {
 

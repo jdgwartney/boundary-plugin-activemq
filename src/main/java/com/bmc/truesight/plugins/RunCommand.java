@@ -1,4 +1,4 @@
-package com.bmc.truesight.plugins.activemq;
+package com.bmc.truesight.plugins;
 
 import java.io.*;
 

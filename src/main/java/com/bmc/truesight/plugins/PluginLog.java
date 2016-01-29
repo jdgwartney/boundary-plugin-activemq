@@ -13,11 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.bmc.truesight.plugins.activemq;
+package com.bmc.truesight.plugins;
+
 
 import java.text.ParseException;
 
-public interface PluginParsedItem {
+public class PluginLog implements PluginParsedItem {
 
-    void parse(String s) throws ParseException;
+    private String line;
+
+    public PluginLog() {
+    }
+
+    public void parse(String s) throws ParseException {
+        if (s == null) {
+            throw new ParseException("String is null", 0);
+        }
+        this.line = s;
+    }
+
+    public String getLine() {
+        return this.line;
+    }
 }

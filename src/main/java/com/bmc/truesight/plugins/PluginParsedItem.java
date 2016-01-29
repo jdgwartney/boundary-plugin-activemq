@@ -13,18 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package com.bmc.truesight.plugins.activemq;
+package com.bmc.truesight.plugins;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
-import org.junit.*;
+import java.text.ParseException;
 
-public class PluginSimulatorTest {
+public interface PluginParsedItem {
 
-
-    @Test
-    public void testConstructor() {
-        PluginSimulator simulator = new PluginSimulator();
-        assertThat(simulator, is(notNullValue()));
-    }
+    void parse(String s) throws ParseException;
 }

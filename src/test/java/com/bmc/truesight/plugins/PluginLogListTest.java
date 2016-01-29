@@ -1,25 +1,28 @@
-package com.bmc.truesight.plugins.activemq;
+package com.bmc.truesight.plugins;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
+
+import com.bmc.truesight.plugins.PluginLog;
+import com.bmc.truesight.plugins.PluginLogList;
 import org.junit.*;
 
 
-public class PluginEventListTest {
+public class PluginLogListTest {
 
     @Test
     public void testConstructor() {
-        PluginEventList events = new PluginEventList();
+        PluginLogList events = new PluginLogList();
         assertThat(events, is(notNullValue()));
         assertThat(events.size(), is(equalTo(0)));
     }
 
     @Test
-    public void testAddMeasurement() {
-        PluginEventList list = new PluginEventList();
-        list.add(new PluginEvent());
+    public void testAddLog() {
+        PluginLogList list = new PluginLogList();
+        list.add(new PluginLog());
         assertThat(list.size(), is(equalTo(1)));
     }
 
