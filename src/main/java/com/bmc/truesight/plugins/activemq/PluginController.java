@@ -27,9 +27,9 @@ public class PluginController implements Runnable {
 
     private String command;
     private Process plugin;
-    private ArrayList<PluginEvent> events;
-    private ArrayList<PluginLog> logs;
-    private ArrayList<PluginMeasurement> measurements;
+    private PluginEventList events;
+    private PluginLogList logs;
+    private PluginMeasurementList measurements;
     private BufferedReader stdInput;
     private BufferedReader stdError;
     private long stdOutCount;
@@ -50,9 +50,9 @@ public class PluginController implements Runnable {
     }
 
     public void start() {
-        this.events = new ArrayList<PluginEvent>();
-        this.logs = new ArrayList<PluginLog>();
-        this.measurements = new ArrayList<PluginMeasurement>();
+        this.events = new PluginEventList();
+        this.logs = new PluginLogList();
+        this.measurements = new PluginMeasurementList();
         Thread pluginThread = new Thread(this);
         pluginThread.start();
     }

@@ -13,9 +13,9 @@ public class PluginOutputTest {
 
     @Before
     public void createOutput() throws ParseException {
-        ArrayList<PluginEvent> events = new ArrayList<PluginEvent>();
-        ArrayList<PluginMeasurement> measurements = new ArrayList<PluginMeasurement>();
-        ArrayList<PluginLog> logs = new ArrayList<PluginLog>();
+        PluginEventList events = new PluginEventList();
+        PluginMeasurementList measurements = new PluginMeasurementList();
+        PluginLogList logs = new PluginLogList();
         PluginEvent event = new PluginEvent();
         String rawEvent = "_bevent:TITLE|m:MESSAGE|h:SOURCE|s:SENDER|t:info|tags:red,green,blue|at:text/html|ad:APPLICATION_DATA";
         event.parse(rawEvent);
@@ -36,18 +36,18 @@ public class PluginOutputTest {
 
     @Test
     public void testConstructor() {
-        ArrayList<PluginEvent> events = new ArrayList<PluginEvent>();
-        ArrayList<PluginLog> logs = new ArrayList<PluginLog>();
-        ArrayList<PluginMeasurement> measurements = new ArrayList<PluginMeasurement>();
+        PluginMeasurementList measurements = new PluginMeasurementList();
+        PluginEventList events = new PluginEventList();
+        PluginLogList logs = new PluginLogList();
         PluginOutput output = new PluginOutput(events, logs, measurements);
         assertThat(output, is(notNullValue()));
     }
 
     @Test
     public void testGet() {
-        ArrayList<PluginEvent> events = this.output.getEvents();
-        ArrayList<PluginLog> logs = this.output.getLogs();
-        ArrayList<PluginMeasurement> measurements = this.output.getMeasurements();
+        PluginEventList events = this.output.getEvents();
+        PluginLogList logs = this.output.getLogs();
+        PluginMeasurementList measurements = this.output.getMeasurements();
 
         assertThat(events, is(notNullValue()));
         assertThat(logs, is(notNullValue()));
@@ -55,23 +55,5 @@ public class PluginOutputTest {
         assertThat(events.size(), is(equalTo(1)));
         assertThat(logs.size(), is(equalTo(1)));
         assertThat(measurements.size(), is(equalTo(1)));
-    }
-
-    @Test
-    public void testGetByMetric() {
-        ArrayList<PluginMeasurement> measurements = this.output.getMeasurementsByMetric("TEST_METRIC");
-        assertThat(measurements.size(), is(equalTo(1)));
-
-        PluginMeasurement m = measurements.get(0);
-        assertThat(m.getMetric(), is(equalTo("TEST_METRIC")));
-        Number expectedNumber = 104501.000000;
-        assertThat(m.getValue(), is(equalTo(expectedNumber)));
-        assertThat(m.getSource(), is(equalTo("localhost")));
-        assertThat(m.getTimestamp(), is(equalTo(1453776205L)));
-    }
-
-    @Test
-    public void testMeasurementCount() {
-        assertThat(this.output.countMeasurementsByMetric("TEST_METRIC"), is(equalTo(1L)));
     }
 }

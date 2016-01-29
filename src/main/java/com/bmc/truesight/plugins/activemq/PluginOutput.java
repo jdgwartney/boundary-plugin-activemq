@@ -19,61 +19,39 @@ import java.util.ArrayList;
 
 public class PluginOutput {
 
-    private ArrayList<PluginEvent> events;
-    private ArrayList<PluginLog> logs;
-    private ArrayList<PluginMeasurement> measurements;
+    private PluginEventList events;
+    private PluginLogList logs;
+    private PluginMeasurementList measurements;
 
-    public PluginOutput(ArrayList<PluginEvent> events,
-                        ArrayList<PluginLog> logs,
-                        ArrayList<PluginMeasurement> measurements) {
+    public PluginOutput(PluginEventList events,
+                        PluginLogList logs,
+                        PluginMeasurementList measurements) {
         this.events = events;
         this.logs = logs;
         this.measurements = measurements;
     }
 
-    ArrayList<PluginEvent> getEvents() {
-        ArrayList<PluginEvent> events = new ArrayList<PluginEvent>();
+    PluginEventList getEvents() {
+        PluginEventList events = new PluginEventList();
         for (PluginEvent event: this.events) {
             events.add(event);
         }
         return events;
     }
 
-    ArrayList<PluginLog> getLogs() {
-        ArrayList<PluginLog> logs = new ArrayList<PluginLog>();
+    PluginLogList getLogs() {
+        PluginLogList logs = new PluginLogList();
         for (PluginLog s: this.logs) {
             logs.add(s);
         }
         return logs;
     }
 
-    ArrayList<PluginMeasurement> getMeasurements() {
-        ArrayList<PluginMeasurement> measurements = new ArrayList<PluginMeasurement>();
+    PluginMeasurementList getMeasurements() {
+        PluginMeasurementList measurements = new PluginMeasurementList();
         for (PluginMeasurement measurement: this.measurements) {
             measurements.add(measurement);
         }
         return measurements;
-    }
-
-    ArrayList<PluginMeasurement> getMeasurementsByMetric(String metric) {
-        ArrayList<PluginMeasurement> list = new ArrayList<PluginMeasurement>();
-
-        for (PluginMeasurement measurement : this.measurements) {
-            if (measurement.getMetric().equals(metric)) {
-                list.add(measurement);
-            }
-        }
-        return list;
-    }
-
-    long countMeasurementsByMetric(String metric) {
-        long count = 0;
-
-        for (PluginMeasurement measurement : this.measurements) {
-            if (measurement.getMetric().equals(metric)) {
-                count++;
-            }
-        }
-        return count;
     }
 }
